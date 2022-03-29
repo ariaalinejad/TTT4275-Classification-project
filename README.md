@@ -1,2 +1,2 @@
 # TTT4275-Classification-project
-test
+Aria Alinejad & Thea Charlotte Brusevold Andersen for the win
