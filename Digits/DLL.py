@@ -18,3 +18,11 @@ for k in range(30):
     z[k]=W.dot(np.transpose(x[k]))
 
 g = 1/(1+np.exp(-z))
+
+'''
+- Hvor mange ledd skal vi ha?
+- Hvor mange noder skal vi ha på hvert ledd?
+- Hvilken verdi skal alpha ha? 
+- Hvor mange gjennomganger skal vi ha av systemet?
+- Hvordan skal vi dele inn dataen for testing og trening?
+'''
