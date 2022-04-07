@@ -8,24 +8,26 @@ from tabulate import tabulate
 
 
 def main():
-    np.random.seed(1)
+    #np.random.seed(1)
 
     C = 3
-    D = 4
+    D = 1
     alpha  = 0.01
     Ntrain = 30
     Ntest  = 20
     NtrainAll = Ntrain*3
     NtestAll = Ntest*3
+    Niterations = 1000
     ConfMatrixTrain = np.zeros([C,C])
     ConfMarixTest = np.zeros([C,C])
     AllMSE = []
-    W = 2*np.random.random((C,D+1))-1 # 3x5 matrix gives number between -1 and 1 
+    #W = 2*np.random.random((C,D+1))-1 # 3x5 matrix gives number between -1 and 1 
+    W = np.zeros((C,D+1))
 
-    xTest, xTrain, tTest, tTrain = splitData('iris.data', Ntest)
+    xTrain, xTest, tTrain, tTest = splitData('iris.data', Ntrain, [0,1,2])
     #xTrain, xTest, tTrain, tTest = splitData('iris.data', Ntrain)
 
-    for i in range(1000): # run 20 backpropagations
+    for i in range(Niterations): # run 20 backpropagations
 
         zTrain, gTrain, MSETrain, GradMSETrain = findMSE(xTrain,tTrain, NtrainAll, C, W)
 
@@ -52,15 +54,17 @@ def main():
     ['Virginica',  ConfMarixTest[2][0],ConfMarixTest[2][1], ConfMarixTest[2][2]]]
     
     
-    '''print ('Weighting matrix: \n')
+    print ('Weighting matrix: \n')
     for line in W:
         print ('\n ', '   '.join(map(str, line)))
     print('ConfmatrixTrain train: \n'+tabulate(tableTrain))
     print('ConfmatrixTrain test: \n'+tabulate(tableTest))
     print(f'Error rate(train): {round(findErrorRate(ConfMatrixTrain,NtrainAll, C),5)}% \n')
-    print(f'Error rate(train): {round(findErrorRate(ConfMarixTest,NtrainAll, C),5)}% \n')'''
-
-    print(histogramList('iris.data', 0, 16))
+    print(f'Error rate(train): {round(findErrorRate(ConfMarixTest,NtrainAll, C),5)}% \n')
+    histogram('iris.data')
+    #plt.show()
+    
+    #print(histogramList('iris.data', 0, 16))
     #plt.plot(AllMSE) 
     #plt.hist(histogramList('iris.data', 0, 16))
     #plt.show()
@@ -78,13 +82,21 @@ def main():
 
 
 
-def splitData(fileName, N):
+def splitData(fileName, N, col = None):
     df = pd.read_csv(fileName, header = None)
     df[4] = 1 
 
+    if (col != None):
+        for i in col:
+            df.drop(i, inplace=True, axis=1)
+    
+    #print(df)
+    
     df_S    = df.iloc[   :50 ]
     df_Vc   = df.iloc[50 :100]
     df_Vg   = df.iloc[100:150]
+
+
 
     '''firstData =  []#np.zeros([N*3,5])
     secondData = []#np.zeros([(50-N)*3,5])
@@ -105,7 +117,7 @@ def splitData(fileName, N):
     df_Vg_train = df_Vg.iloc[:N]
     df_Vg_test  = df_Vg.iloc[N:]
 
-    firstX = np.concatenate((df_S_train,df_Vc_train,df_Vg_train), axis=0) #training data (90x5 matix)
+    firstX   = np.concatenate((df_S_train,df_Vc_train,df_Vg_train), axis=0) #training data (90x5 matix)
     secondX  = np.concatenate((df_S_test,df_Vc_test,df_Vg_test), axis=0) #testing data
 
     firstTS = np.tile(np.array([[1,0,0]]), (N, 1))
@@ -132,7 +144,7 @@ def findMSE(x_local, t_local, N, C, W):
         g_local[k]=1/(1+np.exp(-z_local[k]))
 
         MSE_local += 0.5*np.dot((g_local[k]-t_local[k]).T,(g_local[k]-t_local[k]))
-        GradMSE_local += np.dot(((g_local[k]-t_local[k])*g_local[k]*(1-g_local[k])).reshape((3,1)), x_local[k].reshape((1,5))) # 1x3 times 1x5 gives 3x5 matrix
+        GradMSE_local += np.outer(((g_local[k]-t_local[k])*g_local[k]*(1-g_local[k])), x_local[k]) # 1x3 times 1x5 gives 3x5 matrix
     return z_local, g_local, MSE_local, GradMSE_local
 
 
@@ -143,142 +155,94 @@ def findErrorRate(ConfMatrixTrain, N, C):
             if (i != j):
                 errorRate += ConfMatrixTrain[i][j]/N
     return errorRate
-    
 
 
-
-def histogramList(fileName, featureIndex, NBin):
+def histogram(fileName):
     df = pd.read_csv(fileName, header = None)
-    df[4] = 1 
-    print(df)
+    sepalLength = np.array(df[0])
+    sepalWidth  = np.array(df[1])
+    petalLength = np.array(df[2])
+    petalWidth  = np.array(df[3])
 
-    histList = pd.cut(df[1], bins='16')
-    print(histList)
+
+    #Sepal length
+    fig1, axs1 = plt.subplots(3, 1, sharex=True, tight_layout=True)
+    axs1[0].hist(sepalLength[:50], bins=16, color = "mediumseagreen")
+    axs1[0].set_title('Iris-setosa')
+    axs1[0].set_ylabel('samples per bin')
+    axs1[1].hist(sepalLength[50:100], bins=16, color = "mediumaquamarine")
+    axs1[1].set_title('Iris-versicolor')
+    axs1[1].set_ylabel('samples per bin')
+    axs1[2].hist(sepalLength[100:150], bins=16, color = "mediumturquoise")
+    axs1[2].set_title('Iris-virginica')
+    axs1[2].set_ylabel('samples per bin')
+    axs1[2].set_xlabel('Sepal Length [cm]')
+
+    #Sepal width
+    fig2, axs2 = plt.subplots(3, 1, sharex=True, tight_layout=True)
+    axs2[0].hist(sepalWidth[:50], bins=16, color = "mediumseagreen")
+    axs2[0].set_title('Iris-setosa')
+    axs2[0].set_ylabel('samples per bin')
+    axs2[1].hist(sepalWidth[50:100], bins=16, color = "mediumaquamarine")
+    axs2[1].set_title('Iris-versicolor')
+    axs2[1].set_ylabel('samples per bin')
+    axs2[2].hist(sepalWidth[100:150], bins=16, color = "mediumturquoise")
+    axs2[2].set_title('Iris-virginica')
+    axs2[2].set_ylabel('samples per bin')
+    axs2[2].set_xlabel('Sepal Width [cm]')
+
+    #Petal length
+    fig3, axs3 = plt.subplots(3, 1, sharex=True, tight_layout=True)
+    axs3[0].hist(petalLength[:50], bins=16, color = "mediumseagreen")
+    axs3[0].set_title('Iris-setosa')
+    axs3[0].set_ylabel('samples per bin')
+    axs3[1].hist(petalLength[50:100], bins=16, color = "mediumaquamarine")
+    axs3[1].set_title('Iris-versicolor')
+    axs3[1].set_ylabel('samples per bin')
+    axs3[2].hist(petalLength[100:150], bins=16, color = "mediumturquoise")
+    axs3[2].set_title('Iris-virginica')
+    axs3[2].set_ylabel('samples per bin')
+    axs3[2].set_xlabel('Petal length[cm]')
+
+    #Petal width
+    fig4, axs4 = plt.subplots(3, 1, sharex=True, tight_layout=True)
+    axs4[0].hist(petalWidth[:50], bins=16, color = "mediumseagreen")
+    axs4[0].set_title('Iris-setosa')
+    axs4[0].set_ylabel('samples per bin')
+    axs4[1].hist(petalWidth[50:100], bins=16, color = "mediumaquamarine")
+    axs4[1].set_title('Iris-versicolor')
+    axs4[1].set_ylabel('samples per bin')
+    axs4[2].hist(petalWidth[100:150], bins=16, color = "mediumturquoise")
+    axs4[2].set_title('Iris-virginica')
+    axs4[2].set_ylabel('samples per bin')
+    axs4[2].set_xlabel('Petal width[cm]')
+
+    countsPetalWidth1, _ = np.histogram(petalWidth[0:50],    bins=16, range = (0,2.5))
+    countsPetalWidth2, _ = np.histogram(petalWidth[50:100],  bins=16, range = (0,2.5))
+    countsPetalWidth3, _ = np.histogram(petalWidth[100:150], bins=16, range = (0,2.5))
+
+    countsPetalLength1, _ = np.histogram(petalLength[0:50],    bins=16, range = (0.5,7))
+    countsPetalLength2, _ = np.histogram(petalLength[50:100],  bins=16, range = (0.5,7))
+    countsPetalLength3, _ = np.histogram(petalLength[100:150], bins=16, range = (0.5,7))
+
+    countsSepalWidth1, _ = np.histogram(sepalWidth[0:50],    bins=16, range = (2,4.5))
+    countsSepalWidth2, _ = np.histogram(sepalWidth[50:100],  bins=16, range = (2,4.5))
+    countsSepalWidth3, _ = np.histogram(sepalWidth[100:150], bins=16, range = (2,4.5))
+
+    countsSepalLength1, _ = np.histogram(sepalLength[0:50],    bins=16, range = (4,8))
+    countsSepalLength2, _ = np.histogram(sepalLength[50:100],  bins=16, range = (4,8))
+    countsSepalLength3, _ = np.histogram(sepalLength[100:150], bins=16, range = (4,8))
     
+    overlapPetalWidth = np.sum(np.minimum(countsPetalWidth1,countsPetalWidth2)) + np.sum(np.minimum(countsPetalWidth1,countsPetalWidth3)) + np.sum(np.minimum(countsPetalWidth2,countsPetalWidth3))
+    overlapPetalLength = np.sum(np.minimum(countsPetalLength1,countsPetalLength2)) + np.sum(np.minimum(countsPetalLength1,countsPetalLength3)) + np.sum(np.minimum(countsPetalLength2,countsPetalLength3))
+    overlapSepalLength = np.sum(np.minimum(countsSepalWidth1,countsSepalWidth2)) + np.sum(np.minimum(countsSepalWidth1,countsSepalWidth3)) + np.sum(np.minimum(countsSepalWidth2,countsSepalWidth3))
+    overlapSepalWidth = np.sum(np.minimum(countsSepalLength1,countsSepalLength2)) + np.sum(np.minimum(countsSepalLength1,countsSepalLength3)) + np.sum(np.minimum(countsSepalLength2,countsSepalLength3))
     
-    binWidth = (max(df.T[featureIndex]) - min(df.T[featureIndex]))/NBin
-    #print(f'binwidth: {binWidth}')
+    #print(f"overlapPetalWidth: {overlapPetalWidth} \n overlapPetalLength: {overlapPetalLength}\n overlapSepalWidth: {overlapSepalLength} \n overlapSepalLength: {overlapSepalWidth}")
    
-    #histList = pd.Series(np.zeros(NBin))
-    #print(f'histList: {histList}')
-    for i in range(NBin):
-        #histList[i] = df[binWidth*i < df[featureIndex] < binWidth*(i+1)]
-        #histList[i] = df[df[featureIndex] < 4]
-        print(f'histList i: {histList[i]}')
-    
-    return np.array(histList)
-
 
 
 main()
 
 
-
-'''import pandas as pd
-import numpy as np
-import wheel
-import matplotlib.pyplot as plt
-from tabulate import tabulate
-
-np.random.seed(1)
-
-C = 3
-D = 4
-
-alpha  = 0.1
-Ntrain = 30
-Ntest  = 20
-NtrainAll = 90
-NtestAll = 60
-AllMSE = []
-
-df = pd.read_csv('iris.data', header = None)
-df_S    = df.iloc[   :50 ]
-df_Vc   = df.iloc[50 :100]
-df_Vg   = df.iloc[100:150]
-
-
-df_S_train  =  df_S.iloc[      :Ntrain]
-df_S_test   =  df_S.iloc[Ntrain:      ]
-df_Vc_train = df_Vc.iloc[      :Ntrain]
-df_Vc_test  = df_Vc.iloc[Ntrain:      ]
-df_Vg_train = df_Vg.iloc[      :Ntrain]
-df_Vg_test  = df_Vg.iloc[Ntrain:      ]
-
-x = np.concatenate((df_S_train,df_Vc_train,df_Vg_train), axis=0)
-x.T[4] = 1
-test_data  = np.concatenate((df_S_test,df_Vc_test,df_Vg_test), axis=0)
-test_data.T[4]  = 1
-
-tS = np.tile(np.array([[1,0,0]]), (Ntrain, 1))
-tVc= np.tile(np.array([[0,1,0]]), (Ntrain, 1))
-tVg= np.tile(np.array([[0,0,1]]), (Ntrain, 1))
-t  = np.concatenate((tS,tVc,tVg),axis=0)
-
-#W = 2*np.random.random((C,D+1))-1
-W = np.random.random((C,D+1))
-
-z = np.empty([NtrainAll,C])
-g = np.empty([NtrainAll,C])
-
-for i in range(20):
-    GradMSE = 0 
-    for k in range(90):
-        z[k]=np.dot(W,x[k].T)
-
-        for i in range(C):
-            g[k][i] = 1/(1+np.exp(-z[k][i]))
-
-        GradMSE += np.outer(((g[k]-t[k])*g[k]*(1-g[k])), x[k])
-       
-
-    W = W - alpha*GradMSE
-    #print(f'Shapes \n t: {t.shape} \n x: {x.shape} \n g: {g.shape} \n (g-t)*g: {((g-t)*g).shape} \n ((g-t)*g*(1-g)): {np.outer(((g[0]-t[0])*g[0]*(1-g[0])),x[0]).shape} \n GardMSE: {GradMSE.shape}')
-    #print(sum(sum(GradMSE)))
-    MSE = 0
-    for k in range(90):
-        MSE += 0.5*np.dot((g[k]-t[k]).T,(g[k]-t[k]))
-    AllMSE.append(MSE)
-
-ConfMatrix = np.zeros([C,C])
-
-for k in range(90):
-    ConfMatrix[np.argmax(t[k])][np.argmax(g[k])] += 1
-    print(t[k])
-    print(g[k])
-
-#print(AllMSE)
-
-plt.plot(AllMSE) 
-#plt.show()
-print(ConfMatrix)
-
-#Printing litt fint, men ikke fint nok
-table = [['Event/Decition', 'Septosa', 'Versicolor', 'Virginica'], 
-['Septosa', ConfMatrix[0][0],ConfMatrix[0][1] , ConfMatrix[0][2]], 
-['Versicolor', ConfMatrix[1][0],ConfMatrix[1][1] , ConfMatrix[1][2]], 
-['Virginica', ConfMatrix[2][0], ConfMatrix[2][1], ConfMatrix[2][2]]]
-print(tabulate(table))
-
-
-
-print ('W \n')
-for line in W:
-    print ('\n ', '   '.join(map(str, line)))
-
-#Vi må så finne gradienten av MSE, og endre W (vektleggingen)
-#ut til å bevege seg i motsatt rettning av den, slik at avstandne til streken blir mer
-#alpha bestemmer hvor mye W endres for hver gang
-#
-
-
-
-Til neste gang:
-- fiks t slik at det blir en lang vektor med de tre kategoriene etter hverandre
-- sett sammen x slik at det er en lang vektor med alle verdiene nedover 
-- sjekk over koden slik at alt henger sammen med at vi bruker alle tre kategorier
-- test kode/finn ut hvordan vi skal bruke test data
-- x er training
-
-'''
 
