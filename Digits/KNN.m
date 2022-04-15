@@ -1,10 +1,10 @@
 
-%test = knear(trainv,testv,60,1000,1);
+
 trainSet=trainv; trainSetLabel=trainlab; testSet=testv; Nchunk=60; chunkSize=1000; k=7;
 
 %function [label] = knear(trainSet,trainSetLabel, testSet, Nchunk, chunkSize, k)
-minDist =      zeros(10000);  %zeros(10000, Nchunk);
-minDistIndex = zeros(10000);  %zeros(10000, Nchunk);
+minDist =      zeros(10000,1);  %zeros(10000, Nchunk);
+minDistIndex = zeros(10000,1);  %zeros(10000, Nchunk);
 %{
 for chunk = 1:Nchunk
     startIterative = (chunk-1)*chunkSize+1;
@@ -28,7 +28,7 @@ for chunk = 1:Nchunk
 end
 %}
 
-W = trainSet(1:60,:); %kjører for bare de 60 første punkene siden det tar for lang tid ellers, hehe
+W = trainSet(1:1000,:); %kjører for bare de 60 første punkene siden det tar for lang tid ellers, hehe
 P = testSet.';
 
 distances = dist(W,P);
@@ -45,7 +45,11 @@ for i=1:size(testSet)
     minDistIndex(i) = indexes(idx);
 end
 
+nearestNeighbors = trainSetLabel(minDistIndex);
 %Nå kan jeg gi ut indexen til det tallet som har lavest avstand, wihoooo
+
+title = 'Digit Classification Using the Kmeans';
+errorRate = confMatrix(nearestNeighbors, testlab, title);
 
 %label = 5; %gir ut
 
