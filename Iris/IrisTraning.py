@@ -3,6 +3,7 @@ import numpy as np
 import wheel
 import matplotlib.pyplot as plt
 from tabulate import tabulate
+from scipy import io
 
 
 
@@ -19,10 +20,11 @@ def main():
     NtestAll = Ntest*3
     Niterations = 1000
     ConfMatrixTrain = np.zeros([C,C])
-    ConfMarixTest = np.zeros([C,C])
+    ConfMatrixTest = np.zeros([C,C])
     AllMSE = []
     #W = 2*np.random.random((C,D+1))-1 # 3x5 matrix gives number between -1 and 1 
     W = np.zeros((C,D+1))
+    #Predicted = np.zeros(90,3)
 
     xTrain, xTest, tTrain, tTest = splitData('iris.data', Ntrain, [0,1,2])
     #xTrain, xTest, tTrain, tTest = splitData('iris.data', Ntrain)
@@ -39,28 +41,22 @@ def main():
 
     # makes ConfMatrix for Training data
     for k in range(NtrainAll):
+        #predicted[k][np.argmax(gTest[k])] = 1
         ConfMatrixTrain[np.argmax(tTrain[k])][np.argmax(gTrain[k])] += 1
-    tableTrain = [['Event/Decition', 'Septosa', 'Versicolor', 'Virginica'], 
-    ['Septosa', ConfMatrixTrain[0][0],ConfMatrixTrain[0][1] , ConfMatrixTrain[0][2]], 
-    ['Versicolor', ConfMatrixTrain[1][0],ConfMatrixTrain[1][1] , ConfMatrixTrain[1][2]], 
-    ['Virginica', ConfMatrixTrain[2][0], ConfMatrixTrain[2][1], ConfMatrixTrain[2][2]]]
+    io.savemat('confmatrixTrain.mat', {"ConfmatrixTrain": ConfMatrixTrain })
 
     # makes ConfMatrix for Testing data
     for k in range(NtestAll):
-        ConfMarixTest[np.argmax(tTest[k])][np.argmax(gTest[k])] += 1
-    tableTest = [['Event/Decition', 'Septosa', 'Versicolor', 'Virginica'], 
-    ['Septosa',    ConfMarixTest[0][0],ConfMarixTest[0][1], ConfMarixTest[0][2]], 
-    ['Versicolor', ConfMarixTest[1][0],ConfMarixTest[1][1], ConfMarixTest[1][2]], 
-    ['Virginica',  ConfMarixTest[2][0],ConfMarixTest[2][1], ConfMarixTest[2][2]]]
+        ConfMatrixTest[np.argmax(tTest[k])][np.argmax(gTest[k])] += 1
+    io.savemat('confmatrixTest.mat', {"ConfmatrixTest": ConfMatrixTest })
     
-    
+
     print ('Weighting matrix: \n')
     for line in W:
         print ('\n ', '   '.join(map(str, line)))
-    print('ConfmatrixTrain train: \n'+tabulate(tableTrain))
-    print('ConfmatrixTrain test: \n'+tabulate(tableTest))
+
     print(f'Error rate(train): {round(findErrorRate(ConfMatrixTrain,NtrainAll, C),5)}% \n')
-    print(f'Error rate(train): {round(findErrorRate(ConfMarixTest,NtrainAll, C),5)}% \n')
+    print(f'Error rate(train): {round(findErrorRate(ConfMatrixTest,NtrainAll, C),5)}% \n')
     histogram('iris.data')
     #plt.show()
     
@@ -74,14 +70,7 @@ def main():
 
     #print(f'Shapes \n t: {t.shape} \n x: {x.shape} \n g: {g.shape} \n (g-t)*g: {((g-t)*g).shape} \n ((g-t)*g*(1-g)): {np.outer(((g[0]-t[0])*g[0]*(1-g[0])),x[0]).shape} \n GardMSE: {GradMSE.shape}')
 
-    #Vi må så finne gradienten av MSE, og endre W (vektleggingen)
-    #ut til å bevege seg i motsatt rettning av den, slik at avstandne til streken blir mer
-    #alpha bestemmer hvor mye W endres for hver gang
-
-
-
-
-
+    
 def splitData(fileName, N, col = None):
     df = pd.read_csv(fileName, header = None)
     df[4] = 1 
@@ -96,19 +85,6 @@ def splitData(fileName, N, col = None):
     df_Vc   = df.iloc[50 :100]
     df_Vg   = df.iloc[100:150]
 
-
-
-    '''firstData =  []#np.zeros([N*3,5])
-    secondData = []#np.zeros([(50-N)*3,5])
-    
-    for i in [df_S, df_Vc, df_Vg]:
-        firstData.extend(i.iloc[:N])
-        secondData.extend(i.iloc[N:])
-        #firstData[:N*(index+1)]       = (i.iloc[:N])
-        #secondData[:(50-N)] = (i.iloc[N:])
-    
-    firstData = np.array(firstData)
-    secondData = np.array(secondData)'''
 
     df_S_train  =  df_S.iloc[:N]
     df_S_test   =  df_S.iloc[N:]
