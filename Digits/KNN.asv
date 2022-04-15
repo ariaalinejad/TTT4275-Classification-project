@@ -1,0 +1,19 @@
+
+function [label] = KNN(trainSet, trainLabel, testSet, chunks, chunkSize, k)
+    for chunk = 1:chunks
+        startIterative = (chunk-1)*chunkSize+1;
+        endIterative = chunk*chunkSize+1;
+        W = trainSet(startIterative:endIterative, :);
+        P = testSet.';
+        distances = dist(W,P);
+        
+        for i=1:size(testSet)
+            [M,I] = min(distances(:,i));
+            minDist(i,chunk) = M;
+            min
+        end
+    end
+
+    label = 5; %gir ut
+
+end
