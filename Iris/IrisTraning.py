@@ -93,18 +93,18 @@ def splitData(fileName, N, col = None):
     df_Vg_train = df_Vg.iloc[:N]
     df_Vg_test  = df_Vg.iloc[N:]
 
-    firstX   = np.concatenate((df_S_train,df_Vc_train,df_Vg_train), axis=0) #training data (90x5 matix)
-    secondX  = np.concatenate((df_S_test,df_Vc_test,df_Vg_test), axis=0) #testing data
+    firstX      = np.concatenate((df_S_train,df_Vc_train,df_Vg_train), axis=0) #training data (90x5 matix)
+    secondX     = np.concatenate((df_S_test,df_Vc_test,df_Vg_test), axis=0) #testing data
 
-    firstTS = np.tile(np.array([[1,0,0]]), (N, 1))
-    firstTVc= np.tile(np.array([[0,1,0]]), (N, 1))
-    firstTVg= np.tile(np.array([[0,0,1]]), (N, 1))
+    firstTS     = np.tile(np.array([[1,0,0]]), (N, 1))
+    firstTVc    = np.tile(np.array([[0,1,0]]), (N, 1))
+    firstTVg    = np.tile(np.array([[0,0,1]]), (N, 1))
     firstT      = np.concatenate((firstTS,firstTVc,firstTVg),axis=0)                #90x3 matrix
 
-    secondTS  = np.tile(np.array([[1,0,0]]), (50-N, 1))
-    secondTVc = np.tile(np.array([[0,1,0]]), (50-N, 1))
-    secondTVg = np.tile(np.array([[0,0,1]]), (50-N, 1))
-    secondT = np.concatenate((secondTS,secondTVc,secondTVg),axis=0) #60x3 matrix
+    secondTS    = np.tile(np.array([[1,0,0]]), (50-N, 1))
+    secondTVc   = np.tile(np.array([[0,1,0]]), (50-N, 1))
+    secondTVg   = np.tile(np.array([[0,0,1]]), (50-N, 1))
+    secondT     = np.concatenate((secondTS,secondTVc,secondTVg),axis=0) #60x3 matrix
 
     return firstX, secondX, firstT, secondT
 
@@ -140,83 +140,38 @@ def histogram(fileName):
     petalLength = np.array(df[2])
     petalWidth  = np.array(df[3])
 
-
-    #Sepal length
-    fig1, axs1 = plt.subplots(3, 1, sharex=True, tight_layout=True)
-    axs1[0].hist(sepalLength[:50], bins=16, color = "mediumseagreen")
-    axs1[0].set_title('Iris-setosa')
-    axs1[0].set_ylabel('samples per bin')
-    axs1[1].hist(sepalLength[50:100], bins=16, color = "mediumaquamarine")
-    axs1[1].set_title('Iris-versicolor')
-    axs1[1].set_ylabel('samples per bin')
-    axs1[2].hist(sepalLength[100:150], bins=16, color = "mediumturquoise")
-    axs1[2].set_title('Iris-virginica')
-    axs1[2].set_ylabel('samples per bin')
-    axs1[2].set_xlabel('Sepal Length [cm]')
-
-    #Sepal width
-    fig2, axs2 = plt.subplots(3, 1, sharex=True, tight_layout=True)
-    axs2[0].hist(sepalWidth[:50], bins=16, color = "mediumseagreen")
-    axs2[0].set_title('Iris-setosa')
-    axs2[0].set_ylabel('samples per bin')
-    axs2[1].hist(sepalWidth[50:100], bins=16, color = "mediumaquamarine")
-    axs2[1].set_title('Iris-versicolor')
-    axs2[1].set_ylabel('samples per bin')
-    axs2[2].hist(sepalWidth[100:150], bins=16, color = "mediumturquoise")
-    axs2[2].set_title('Iris-virginica')
-    axs2[2].set_ylabel('samples per bin')
-    axs2[2].set_xlabel('Sepal Width [cm]')
-
-    #Petal length
-    fig3, axs3 = plt.subplots(3, 1, sharex=True, tight_layout=True)
-    axs3[0].hist(petalLength[:50], bins=16, color = "mediumseagreen")
-    axs3[0].set_title('Iris-setosa')
-    axs3[0].set_ylabel('samples per bin')
-    axs3[1].hist(petalLength[50:100], bins=16, color = "mediumaquamarine")
-    axs3[1].set_title('Iris-versicolor')
-    axs3[1].set_ylabel('samples per bin')
-    axs3[2].hist(petalLength[100:150], bins=16, color = "mediumturquoise")
-    axs3[2].set_title('Iris-virginica')
-    axs3[2].set_ylabel('samples per bin')
-    axs3[2].set_xlabel('Petal length[cm]')
-
-    #Petal width
-    fig4, axs4 = plt.subplots(3, 1, sharex=True, tight_layout=True)
-    axs4[0].hist(petalWidth[:50], bins=16, color = "mediumseagreen")
-    axs4[0].set_title('Iris-setosa')
-    axs4[0].set_ylabel('samples per bin')
-    axs4[1].hist(petalWidth[50:100], bins=16, color = "mediumaquamarine")
-    axs4[1].set_title('Iris-versicolor')
-    axs4[1].set_ylabel('samples per bin')
-    axs4[2].hist(petalWidth[100:150], bins=16, color = "mediumturquoise")
-    axs4[2].set_title('Iris-virginica')
-    axs4[2].set_ylabel('samples per bin')
-    axs4[2].set_xlabel('Petal width[cm]')
-
-    countsPetalWidth1, _ = np.histogram(petalWidth[0:50],    bins=16, range = (0,2.5))
-    countsPetalWidth2, _ = np.histogram(petalWidth[50:100],  bins=16, range = (0,2.5))
-    countsPetalWidth3, _ = np.histogram(petalWidth[100:150], bins=16, range = (0,2.5))
-
-    countsPetalLength1, _ = np.histogram(petalLength[0:50],    bins=16, range = (0.5,7))
-    countsPetalLength2, _ = np.histogram(petalLength[50:100],  bins=16, range = (0.5,7))
-    countsPetalLength3, _ = np.histogram(petalLength[100:150], bins=16, range = (0.5,7))
-
-    countsSepalWidth1, _ = np.histogram(sepalWidth[0:50],    bins=16, range = (2,4.5))
-    countsSepalWidth2, _ = np.histogram(sepalWidth[50:100],  bins=16, range = (2,4.5))
-    countsSepalWidth3, _ = np.histogram(sepalWidth[100:150], bins=16, range = (2,4.5))
-
-    countsSepalLength1, _ = np.histogram(sepalLength[0:50],    bins=16, range = (4,8))
-    countsSepalLength2, _ = np.histogram(sepalLength[50:100],  bins=16, range = (4,8))
-    countsSepalLength3, _ = np.histogram(sepalLength[100:150], bins=16, range = (4,8))
     
-    overlapPetalWidth = np.sum(np.minimum(countsPetalWidth1,countsPetalWidth2)) + np.sum(np.minimum(countsPetalWidth1,countsPetalWidth3)) + np.sum(np.minimum(countsPetalWidth2,countsPetalWidth3))
-    overlapPetalLength = np.sum(np.minimum(countsPetalLength1,countsPetalLength2)) + np.sum(np.minimum(countsPetalLength1,countsPetalLength3)) + np.sum(np.minimum(countsPetalLength2,countsPetalLength3))
-    overlapSepalLength = np.sum(np.minimum(countsSepalWidth1,countsSepalWidth2)) + np.sum(np.minimum(countsSepalWidth1,countsSepalWidth3)) + np.sum(np.minimum(countsSepalWidth2,countsSepalWidth3))
-    overlapSepalWidth = np.sum(np.minimum(countsSepalLength1,countsSepalLength2)) + np.sum(np.minimum(countsSepalLength1,countsSepalLength3)) + np.sum(np.minimum(countsSepalLength2,countsSepalLength3))
-    
-    #print(f"overlapPetalWidth: {overlapPetalWidth} \n overlapPetalLength: {overlapPetalLength}\n overlapSepalWidth: {overlapSepalLength} \n overlapSepalLength: {overlapSepalWidth}")
-   
+    classType = [sepalLength, sepalWidth, petalLength, petalWidth]
+    className = ['Sepal Length[cm]', 'Sepal Width [cm]', 'Petal length[cm]', 'Petal width[cm]']
 
+    for i in range(4):
+        fig, axs = plt.subplots(3, 1, sharex=True, tight_layout=True)
+        axs[0].hist(classType[i][:50], bins=16, color = "mediumseagreen")
+        axs[0].set_title('Iris-setosa')
+        axs[0].set_ylabel('samples per bin')
+        axs[1].hist(classType[i][50:100], bins=16, color = "mediumaquamarine")
+        axs[1].set_title('Iris-versicolor')
+        axs[1].set_ylabel('samples per bin')
+        axs[2].hist(classType[i][100:150], bins=16, color = "mediumturquoise")
+        axs[2].set_title('Iris-virginica')
+        axs[2].set_ylabel('samples per bin')
+        axs[2].set_xlabel(className[i])
+
+    #Find Overlap
+    [overlapSepalLength, overlapSepalWidth, overlapPetalLength, overlapPetalWidth] = [0,0,0,0]
+    overlap = [overlapSepalLength, overlapSepalWidth, overlapPetalLength, overlapPetalWidth]
+    overlapPrint = ["Overlap Sepal Length: ", "Overlap Sepal Width: ", "Overlap Petal Length: ", "Overlap Petal Width: "]
+    ranges = [(4,8), (2,4.5), (0.5,7),(0,2.5)]
+
+    for i in range(4):
+        counts1, _ = np.histogram(classType[i][0:50],    bins=16, range = ranges[i])
+        counts2, _ = np.histogram(classType[i][50:100],  bins=16, range = ranges[i])
+        counts3, _ = np.histogram(classType[i][100:150], bins=16, range = ranges[i])
+
+        overlap[i] = np.sum(np.minimum(counts1,counts2))\
+        + np.sum(np.minimum(counts1,counts3))\
+        + np.sum(np.minimum(counts2,counts3))
+        print(overlapPrint[i], overlap[i])
 
 main()
 
