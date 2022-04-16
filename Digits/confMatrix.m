@@ -1,4 +1,10 @@
 function [errorRate] = confMatrix(trainLabel, testLabel, title)
+    %%Find the confusion matrix and the error rate for the test set
+    %use confusionchart(trueLabels,predictedLabels) for confusion matrix
+    %Jeg har alle indexene til testverdiene i lista IndexTrain. Disse har
+    %symbol lik trainlab(index) og egentlige verdi lik testlab(i). Sett alle
+    %disse verdiene inn i en matrise som skal bli brukt i condusion matrix.
+
     confmatrix = zeros(10,10);
     % PredictedVal = zeros(10000,1);
     error = 0;
@@ -6,14 +12,7 @@ function [errorRate] = confMatrix(trainLabel, testLabel, title)
     for i = 1: 10000
         %+1 siden ikke nullindeksert og et av siferne er 0
         confmatrix(testLabel(i)+1,trainLabel(i)+1) = confmatrix(testLabel(i)+1,trainLabel(i)+1)+1;
-        %%Shit for plotting pics:
-        %{
-        if testLabel(i) == 4 && trainLabel(i)== 4
-            imagesc(reshape(testSet(i,:),28,28)');
-            title("true digit: 4, predicted digit: 4. Index test:", i)
-        end
-        %}
-        %%To find errorRate
+   
         if testLabel(i) ~= trainLabel(i)
             error = error + 1;
         end
