@@ -8,7 +8,7 @@ def main():
     indexRemoveFeature = []                                     #index of features we want to remove e.g. [0,1,2]
     C = 3                                                       #number of classes
     D = 4 - len(indexRemoveFeature)                             #number of features
-    alpha  = [0.01]                                             #step factor  e.g. [0.1,0.01,0.001,0.0001]
+    alpha  = [0.1]                                              #step factor  e.g. [0.1,0.01,0.001,0.0001]
     Ntrain = 30                                                 #number of traning data for one class
     Ntest  = 20                                                 #number of test data for one class
     NtrainAll = Ntrain*C                                        #number of traning data for all classes
@@ -20,8 +20,8 @@ def main():
     AllMSETest =  [[0]*Niterations for i in range(len(alpha))]  #array of all mean sqare errors
 
     #-----------THE DIFFERENT CASES THAT ARE TESTED-----------#
-    xTrain, xTest, tTrain, tTest = splitData('iris.data', Ntrain, indexRemoveFeature) #trained using a first 30 samples
-    #xTest, xTrain, tTest, tTrain = splitData('iris.data', Ntest, indexRemoveFeature) #trained using a last 30 samples
+    #xTrain, xTest, tTrain, tTest = splitData('iris.data', Ntrain, indexRemoveFeature) #trained using a first 30 samples
+    xTest, xTrain, tTest, tTrain = splitData('iris.data', Ntest, indexRemoveFeature) #trained using a last 30 samples
     
     #-----------THE CLASSIFIER IS TRAINED AND THE MSE IS FOUND-----------#
     for j in range(len(alpha)):
@@ -37,7 +37,7 @@ def main():
             zTest, gTest, MSETest, GradMSETest = findMSE(xTest, tTest, NtestAll, C, W)
 
             AllMSETest[j][i] = MSETest
-        plt.plot(AllMSETrain[j], label=f"Training data \u03B1={alpha[j]}") #plots the MSE for each alpha
+        plt.plot(AllMSETest[j], label=f"Testing data \u03B1={alpha[j]}") #plots the MSE for each alpha
     plt.xlabel('iterations')
     plt.ylabel('MSE')
     plt.title('MSE for differenet \u03B1')
