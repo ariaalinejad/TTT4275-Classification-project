@@ -50,7 +50,6 @@ for i = 1:2:8
     subplot(4,2,i+1);
     imagesc(reshape(trainv(indexTrainMiss(i),:),28,28)');
     title('The nearest neighbor ');
-
 end
 
 toc
