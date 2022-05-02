@@ -1,3 +1,4 @@
+%Finds the k-nearest neighbor with clustering
 function [nearest] = KNN(trainSet,trainSetLabel, testSet, k) 
      
     minDistIndex = zeros(10000,1); 
