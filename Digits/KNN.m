@@ -11,9 +11,7 @@ function [nearest] = KNN(trainSet,trainSetLabel, testSet, k)
         firstIndex = ismember(indexLabel, modeVec{1}); %Find what digit of the mode(s) is nearest
         idx = find(firstIndex~=0, 1, 'first');         %idx is 1,2,..,7 if digit is nearest, next nearest,.., 7'th nearest
         minDistIndex(i) = indexes(idx);                %Save index of the digit chosen by KNN 
-      
     end
 
     nearest = trainSetLabel(minDistIndex); 
-
 end
