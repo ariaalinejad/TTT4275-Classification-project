@@ -1,3 +1,5 @@
+%%Finds the nearest neighbor without clustering
+
 tic
 
 %% Classify digits using NN, plot confusion matrix
