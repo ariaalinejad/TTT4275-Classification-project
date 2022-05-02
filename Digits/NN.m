@@ -1,3 +1,4 @@
+%Finds the nearest neighbor
 function [nearest, IndexTrainSet] = NN(trainSet,trainSetLabel, testSet, Nchunk, chunkSize)
 
     NtestVal = size(testSet,1); 
