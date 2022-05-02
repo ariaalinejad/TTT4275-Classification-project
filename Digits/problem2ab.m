@@ -1,3 +1,4 @@
+%Finds the nearest neighbor with clustering
 tic
 M=64;
 Nnums = 10;
