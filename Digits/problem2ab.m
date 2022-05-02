@@ -12,7 +12,7 @@ trainvSplit = accumarray(X,1:size(trainlabv,1),[],@(r){trainlabv(r,:)});
 C = zeros(Nnums*M,NColsTrain);
 C_labels = zeros(Nnums*M);
 for i=1:10%itererere gjennom alle cellene
-    [~, C((i-1)*M+1:i*M,:)] = kmeans(trainvSplit{i}(:,2:785),M); %idx kan settes til dont care
+    [~, C((i-1)*M+1:i*M,:)] = kmeans(trainvSplit{i}(:,2:785),M); 
     C_labels((i-1)*M+1:i*M) = i-1;
 end
 
